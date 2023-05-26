@@ -1,0 +1,19 @@
+Nmap is a great tool for getting more information about hosts and networks. Depending on how it is used, nmap can be very loud! I will do 
+a couple of different scans to see how much traffic they generate in the NSM.
+For these scans I am using a standalone Security Onion (SO) installation with default settings with two other hosts connected in a virtual network.
+
+1. First I will scan and discover various machines on the network by entering the command "nmap 192.168.1.0/24" in the terminal. Nmap can find
+three hosts: 192.168.1.2, 192.168.1.5, and 192.168.1.15. With default settings, Security Onion triggered a total of 14 alerts, all of which
+are labeled as medium priority. The more machines and hosts that are on a network, the more alerts will be generated as each will be scanned.
+
+2. Next I will scan one of the hosts with a simple "nmap 192.168.1.15" command to see which ports are open on this specific host.This scan 
+triggers 11 alerts in SO, and they are a mix of low and medium priority. This scan won't search every port on the host. A more specific command
+such as "nmap 192.168.1.15 -p 0-10000" would scan ports 0-10000 and generate more alerts.
+
+3. I still want some more information on the other host, so I will perform an aggressive scan with "sudo nmap -A 192.168.1.5". This scan is by far much louder
+and more noticeable than the preceding attempts. This scan generates high priority alerts instead of medium, and there are many more of them! This method generated
+a total of 79 alerts, while the previous scans averaged about 10. However, we are able to get much more information about the host, including subject alternative name,
+device type, and the OS and version as well as open ports.Performing an aggressive scan is higher risk and higher reward. It attracts much more attention but is also able
+to pull a lot more information.
+
+Of note is that every alert generated in all of the tests identifies the source IP. Extensive use of nmap is sure not to go unnoticed! 
