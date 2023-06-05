@@ -1,0 +1,17 @@
+1. After connecting to an insecure network, I try and find other hosts using a simple nmap scan ("nmap 
+192.168.1.0/24"). I find a potential host with open ports including ssh at 192.168.1.2.
+
+2. Next, I perform a more direct scan of 192.168.1.2 using nmap with "sudo nmap -sV -O -sC -p22 192.168.1.2".
+I use these switches to try and find the version and operating system of the host. The -sC is for default script,
+I can use a more aggressive method next if I don't find the results I am looking for. I discover this
+host is using OpenSSH 7.4 (protocol 2.0) and is running Linux.
+
+3. I try a basic brute force attack with "sudo nmap -sV -O --script=ssh* -p22 192.168.1.2" but glean no new information.
+My next step is to use metasploit to try and find possible usernames. Unfortunately, this server is hardened and returns
+false positive results, so this approach will not work either.
+
+4. For now, my only other option is a slow and bruteforce approach. For this attack I use hydra. I can specify a username
+file with the -L switch and a password file with -P. I start  the process and return in a few hours to see that patience has
+paid off. Hydra returns a login of service:service. With these credentials, I am able to start a remote SSH login and
+access the host system.
+
