@@ -1,0 +1,15 @@
+1., 2. After taking a several hour long lunch break, we return to see that our Security Onion monitoring has been flooding alerts. 
+SO alerts us that someone is trying to log in to a remote shell using SSH to our host 192.168.1.2. Not good! We will start up Wireshark and 
+take a look at the activity. We are quickly flooded with communications between our host 192.168.1.2 and our unknown attacker 192.168.1.5.
+How did they get on our network and get a local IP in the first place?
+
+4. Even worse, we can see that someone has made a successful login after multiple failed attempts!
+
+5. Through wireshark, we can also see that the attacker made a connection and executed some unknown commands on our server before disconnecting.
+
+Looking through the logs on our host 192.168.1.2, we see that the successful login was made using the login credentials service:service. We should
+remove this default account and change the passwords on all other active accounts. If we see any other unused default accounts or accounts with default
+passwords, we should change those immediately as well. The attacker could have exfiltrated our /shadow file and may be brute forcing more passwords.
+We could optionally start using ssh keys to log in instead of passwords. While we are looking at our controls, we should close other ports we are not using,
+like http on port 80. We can restrict the amount of SSH log in attempts as well. Finally, we should investigate how the attacker was able to access our network.
+We should ensure NAC is active on all ethernet ports and that our wifi uses strong passwords and has weak encryptions like WEP disabled.
