@@ -1,0 +1,32 @@
+Using Security Onion to monitor a network is mostly reactive. You see that something is happening, and then make a change. Strong security controls and passwords are proactive. Tools like metasploit, metasploitable, and nmap can 
+show the need to be careful with security controls when they can brute force logins in seconds or snatch cleartext credentials out of thin air. While an IDS or Security Onion may alert you to these attacks after the fact, the ease at which they can be performed
+on an insecure network is incredible. Almost all of these attacks are scripted through Metasploit, and could be executed by anyone.
+
+Four basic attack routes against Metasploitable involve using SSH, FTP, Telnet, and VNC. We know that these ports are open on the Metasploitable host by first perfmorning our Nmap scans. Then we can go further and attempt
+to exploit each of these open ports. In this case, the Metasploitable host is 192.168.1.14. Security Onion is also running to see what it catches from these attacks. I highly recommend the book Kali Linux Penetration Testing Bible by 
+Gus Khawaja to take you further and give more detailed information on how to use Metasploit and Metasploitable.
+
+To exploit FTP, we are looking to brute force a login, sniff for credentials and files sent in cleartext (FTP isn't encrypted), see if there is anonymous access, or use a public exploit. A quick and easy Nmap service
+scan (nmap -sV -O -sC -p21 192.168.1.14) shows that we can log in anonymously, the FTP server is vsftpd 2.3.4, and communication is sent in cleartext. The more involved scan with Nmap (-sV -O --script=ftp* -p21 192.168.1.14)
+returns the previous results as well as that the FTP version is vulnerable, and the default credentials user:user. We can try and bruteforce more usernames and passwords with Hydra if we so choose: hydra -t 10 -L /username/files/location.txt 
+-P /password/location/here.text ftp://192.168.1.14 where t = number of parallel threads, L = path to users file, P = path to password file. 
+
+The vsftpd version 2.3.4 is famous for having a backdoor, and it is included with Metasploit. Using the command in the msfconsole 'exploit/unix/ftp/vsftpd_234_backdoor', we fill in the options and target our Metasploitable host. This exact path extension for the exploit
+can be found through a little research on Google or using the built in search function in Metasploit ('search vsftpd type:exploit) This does gain access to the host, but doesn't return a typical bash shell. If the host has python installed
+(ours does), we can spawn a python shell with: python -c 'import pty;pty.spawn("/bin/bash")' . Interestingly, my Security Onion setup doesn'trecognize that this exploit is taking place. The rules can be tweaked to try and catch this attack
+in the future. However, Security Onion does detect that I used the 'id' command in the remote exploit shell to check my user privileges (root!).
+
+SSH, VNC, and Telnet exploits are both very similar to FTP. The big exception is that Telnet communication is sent cleartext while SSH and VNC are not, so Telnet credentials and data can be captured and read easily using a program like Wireshark. Security
+Onion catches any bruteforce attempts and they are very obvious too! They create an enormous amount of alerts and are a fast ticket to having your IP address blocked. One small issue in my attempts to SSH into the Metasploitable host was
+a mismatch in host key algorithms. This can be solved with the command: ssh -oHostKeyAlgorithms=+ssh-rsa user@192.168.1.14. Instead of ssh-rsa, you can use any of the offered options from the host you are trying to connect to. As mentioned,
+Telnet is cleartext, and Wireshark and Security Onion can pick up credentials and data sent incredibly easily. Telnet should not be used! Other cleartext communications to watch out for are SMTP, HTTP, POP3, IMAPv4, and SNMP (version 1 and 2).
+One thing to note is that VNC doesn't require a username, just a password. This makes it quicker and easier to bruteforce. A tip to speed up any bruteforce attacks is to attempt to enumerate just the users first, and save these names into a text file that
+will then be used to bruteforce passwords.
+
+I have attached several pictures to show just how easy it really is to get into an insecure host with modern tools. Always use secure passwords and don't use cleartext protocols!
+	
+
+
+
+
+
